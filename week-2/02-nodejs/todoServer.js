@@ -39,11 +39,55 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
-  const app = express();
-  
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+const express = require("express");
+const bodyParser = require("body-parser");
+
+const app = express();
+
+app.use(bodyParser.json());
+
+let todoList = [];
+
+const id = 1;
+
+app.get("/todos", (req, res) => {
+  //const filePath = path(__dirname, "./todos");
+
+  res.json(todoList);
+});
+
+app.get("/todos/:id", (req, res) => {
+  const todo = todoList.find((t) => t.id === parseInt(req.params.id));
+  if (todo) {
+    res.send(todo);
+  } else {
+    res.status(404).json({ error: "Not Found the todo list" });
+  }
+});
+
+app.post("/todos", (req, res) => {
+  let newtodo = {
+    id: Math.floor(Math.random() * 10000),
+    title: req.body.title,
+    description: req.body.description,
+  };
+  todoList.push(newtodo);
+  res.status(201).json(newtodo);
+});
+
+app.put("/todos/:id", (req, res) => {
+  const index = todoList.findIndex((t) => t.id === parseInt(req.params.id));
+  if (index === -1) {
+    res.status(404).json({
+      error: "Not able to find index",
+    });
+  } else {
+    todoList[index].title = req.body.title;
+    todoList[index].description = req.body.description;
+    res.json(todoList[index]);
+  }
+});
+
+app.listen(3000);
+
+module.exports = app;
